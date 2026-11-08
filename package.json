@@ -1,0 +1,25 @@
+{
+  "name": "daytona-tec",
+  "version": "1.0.0",
+  "description": "for use in my company technical codes",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dayomichael1970-lab/daytona-tec.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dayomichael1970-lab/daytona-tec/issues"
+  },
+  "homepage": "https://github.com/dayomichael1970-lab/daytona-tec#readme",
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}

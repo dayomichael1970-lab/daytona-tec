@@ -1,0 +1,183 @@
+DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAYTONA-tec | Full-Stack Trade Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="layout-wrapper">
+        
+        <!-- Left Side Navigation Column -->
+        <aside class="sidebar">
+            <div class="brand-logo">
+                <h1>DAYTONA-tec</h1>
+                <p class="subtitle">FARM-PRODUCE Hub</p>
+            </div>
+            <nav class="vertical-menu">
+                <a href="#about" class="menu-btn">DAYTONA FAMILY</a>
+                <a href="#calculator" class="menu-btn">TONNAGE CALCULATOR</a>
+                <a href="#contact" class="menu-btn">REQUEST QUOTE</a>
+                <a href="#simulator" class="menu-btn orange-highlight">TRADE PANEL SIMULATOR</a>
+            </nav>
+        </aside>
+
+        <!-- Right Side Main Content Panel -->
+        <main class="main-content">
+            
+          <!-- Locate this line in index.html and update the path -->
+                <div class="image-frame">
+                    <img src="images/about-team.jpg" alt="Daytona Sourcing Desk">
+                </div>
+                <div class="text-block">
+                    <h3>DAYTONA-tec Sourcing Systems</h3>
+                    <p>Get the best of poultry produce at optimal condition for tokens and processing your tonnage specs in real time.</p>
+                </div>
+            </section>
+
+            <!-- Dynamic Calculator -->
+            <section id="calculator" class="content-box">
+                <h3>Interactive Calculator Slider</h3>
+                <div class="calc-widget">
+                    <div class="calc-row">
+                        <button id="btn-chicken" class="toggle-btn active" onclick="setProduct('chicken')">Chicken ($2,100/Ton)</button>
+                        <button id="btn-pork" class="toggle-btn" onclick="setProduct('pork')">Pork ($2,850/Ton)</button>
+                    </div>
+                    <div class="calc-row slider-container">
+                        <label>Order Target Volume: <span id="ton-display">5 Tons</span></label>
+                        <input type="range" id="ton-slider" min="1" max="100" value="5">
+                    </div>
+                    <div class="calc-row output">
+                        <h4>Estimated Baseline Valuation: <span id="price-display">$10,500</span></h4>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Form Section -->
+            <section id="contact" class="content-box">
+                <h3>Submit Live Wholesale Cargo Order</h3>
+                <form class="retro-form" id="orderForm" onsubmit="handleSubmit(event)">
+                    <input type="text" id="buyer-name" placeholder="Buyer / Company Name" required>
+                    <input type="email" id="buyer-email" placeholder="Corporate Contact Email" required>
+                    <input type="number" id="form-tons" placeholder="Required Tons" min="1" value="5" required>
+                    <button type="submit" class="submit-btn">Transmit to Backend Matrix</button>
+                </form>
+            </section>
+
+            <!-- Simulation Panel Integration -->
+            <section id="simulator" class="content-box simulator-box">
+                <div class="sim-header">
+                    <h3>📡 Trade Desk Simulator Ledger</h3>
+                    <button class="refresh-btn" onclick="fetchLiveLogs()">Sync Database Stream</button>
+                </div>
+                <p class="sim-sub">The items displayed below represent raw server storage logs retrieved dynamically via REST APIs from your <code>inquiries.json</code> database system file.</p>
+                
+                <div class="log-table-container">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Buyer Entity</th>
+                                <th>Commodity Line</th>
+                                <th>Volume (Tons)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="live-log-rows">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #94a3b8;">No current queries logged on backend memory storage. Use form above to test...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Live Interactivity and Server Communications Engine -->
+    <script>
+        let currentRate = 2.5;
+        let activeCommodity = 'chicken';
+        const slider = document.getElementById('ton-slider');
+        const tonDisplay = document.getElementById('ton-display');
+        const priceDisplay = document.getElementById('price-display');
+
+        slider.addEventListener('input', updateCalc);
+
+        function setProduct(type) {
+            activeCommodity = type;
+            currentRate = type === 'chicken' ? 2500000 : 2850000;
+            document.getElementById('btn-chicken').classList.toggle('active', type === 'chicken');
+            document.getElementById('btn-pork').classList.toggle('active', type === 'pork');
+            updateCalc();
+        }
+
+        function updateCalc() {
+            const tons = slider.value;
+            tonDisplay.textContent = `${tons} ${tons == 1 ? 'Ton' : 'Tons'}`;
+            const total = tons * currentRate;
+            priceDisplay.textContent = 'N' + total.toLocaleString();
+            document.getElementById('form-tons').value = tons;
+        }
+
+        // Backend Integration: Handle standard async post routines via fetch API
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const payload = {
+                name: document.getElementById('buyer-name').value,
+                email: document.getElementById('buyer-email').value,
+                tons: document.getElementById('form-tons').value,
+                commodity: activeCommodity.toUpperCase()
+            };
+
+            try {
+                const response = await fetch('/api/inquire', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const outcome = await response.json();
+                if (outcome.success) {
+                    alert("Success! Backend confirmed transaction log entry.");
+                    document.getElementById('orderForm').reset();
+                    fetchLiveLogs(); // Instantly update simulation table visually
+                }
+            } catch (err) {
+                console.error("Networking connection error matching backend channels:", err);
+            }
+        }
+
+        // Backend Simulation Stream fetch routine
+        async function fetchLiveLogs() {
+            try {
+                const response = await fetch('/api/inquiries');
+                const dataset = await response.json();
+                const container = document.getElementById('live-log-rows');
+                
+                if (dataset.length === 0) {
+                    container.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No current queries logged on backend memory storage.</td></tr>`;
+                    return;
+                }
+
+                container.innerHTML = dataset.map(item => `
+                    <tr class="log-entry-row">
+                        <td>${item.timestamp}</td>
+                        <td class="bold-text">${item.name}</td>
+                        <td><span class="badge ${item.commodity.toLowerCase()}">${item.commodity}</span></td>
+                        <td class="numeric-highlight">${item.tons} MT</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error("Failed to query API records array:", err);
+            }
+        }
+
+        // Automatically fetch ledger contents on screen launch
+        window.onload = fetchLiveLogs;
+    </script>
+</body>
+</html>
